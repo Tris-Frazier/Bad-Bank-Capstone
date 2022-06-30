@@ -1,0 +1,82 @@
+.main-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.card {
+  width: 400px;
+  margin-top: 25px;
+  margin-left: 25px;
+  margin-right: 25px;
+  max-height: fit-content;
+  margin-top: 100px;
+}
+
+.card-header {
+  font-weight: bold;
+  font-size: 25px;
+  text-align: center;
+}
+
+.card-title,
+.card-text {
+  text-align: center;
+}
+
+.badge.bg-dark.rounded-pill {
+  color: white;
+  background-color: black;
+}
+
+.list-group-item.make-center {
+  text-align: center;
+  color: white;
+  background-color: black;
+  font-size: 25px;
+}
+
+.feature-coming-soon {
+  text-align: center;
+  margin-top: 250px;
+}
+
+.card-body .balance-information {
+  font-size: 25px;
+}
+
+.list-group-item.movement.deposit {
+  background-color: rgb(112, 192, 112);
+  display: flex;
+  justify-content: space-between;
+}
+.list-group-item.movement.withdraw {
+  background-color: rgb(173, 107, 107);
+  display: flex;
+  justify-content: space-between;
+}
+
+.movements-list {
+  margin-bottom: 0em;
+}
+
+h5 {
+  text-align: center;
+}
+
+.createAccountPage {
+  display: block;
+  align-items: center;
+  padding-bottom: 25px;
+}
+
+#userInfo {
+  visibility: hidden; 
+  padding-bottom: 25px;
+  padding-top: 10px;
+  font-size: 32px;
+  font-weight: 500;
+  text-align: right !important;
+  position: absolute;
+  right: 10%;
+}
