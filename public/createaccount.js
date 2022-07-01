@@ -1,11 +1,13 @@
 function CreateAccount() {
+  
   const [show, setShow] = React.useState(true);
   const [status, setStatus] = React.useState("");
+  const ctx = React.useContext(UserContext);
   
 
   return (
     <div className='CreateAccountPage'>
-    <div id="userInfo"></div>
+    <div id='user-info'><h1 className='user-info'></h1></div>
       <Card
         txtcolor="white"
         bgcolor="secondary"
@@ -37,23 +39,22 @@ function CreateAccount() {
       if (!validate(email, "email")) return;
       if (!validate(password, "password")) return;
       
-      //display name on page
-      let userInfo = document.getElementById("userInfo");
-      userInfo.innerHTML = `Welcome, ${name}`;
-      userInfo.style.visibility = "visible";
-
-      // create user
+      
+      const auth = firebase.auth();
+      const promise = auth.createUserWithEmailAndPassword(
+      email,
+      password
+    );
+    promise.then(()=> {
+      //create user in MongoDB
       const url = `/account/create/${name}/${email}/${password}`;
       (async () => {
-        var res = await fetch(url);
-        // console.log(res);
-        // if(res == 'User already exists. Please login.'){
-        //   document.getElementById('status').innerHTML = 'User already exists. Please login.';
-        //   document.getElementById('status-btn').innerHTML = 'Create new account';
-        // }
-        var data = await res.json();
-        console.log(data);
+        var res  = await fetch(url);
+        var data = await res.json();    
+        console.log(data);        
       })();
+    })
+    promise.catch((e) => console.log(e.message));
       props.setShow(false);
     }
 
@@ -117,17 +118,19 @@ function CreateAccount() {
     return (
       <>
         <h5 id="status">Success</h5>
-        <button
-          type="submit"
-          className="btn btn-light"
-          id="status-btn"
-          onClick={() => props.setShow(true)}
-        >
-          Add another account
-        </button>
+        <a href="#/login/">
+          <button
+            type="submit"
+            className="btn btn-light"
+            id="status-btn"
+          >
+            Login to Account
+          </button>
+        </a>
       </>
     );
   }
+
 
   function validate(field, label) {
     if (!field) {

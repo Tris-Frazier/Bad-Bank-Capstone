@@ -1,11 +1,31 @@
 function Deposit() {
+  
+  React.useEffect(() => {
+    const navCreateAccount = document.getElementById('nav-create-account');
+  const navLogin = document.getElementById('nav-login');
+  const navDeposit = document.getElementById('nav-deposit');
+  const navWithdraw = document.getElementById('nav-withdraw');
+  const navBalance = document.getElementById('nav-balance');
+  const navAllData = document.getElementById('nav-allData');
+  const navLogout = document.getElementById('nav-logout');
+  navCreateAccount.style.display = "none";
+  navLogin.style.display = "none";
+  navDeposit.style.display = "block";
+  navWithdraw.style.display = "block";
+  navBalance.style.display = "block";
+  navAllData.style.display = "block";
+  navLogout.style.display = "block";
+  }, []);
+
   const [show, setShow] = React.useState(true);
   const [status, setStatus] = React.useState("");
   const ctx = React.useContext(UserContext);
-  const [balance, setBalance] = React.useState(ctx.users[0].balance);
-  const [movements, setMovements] = React.useState(ctx.users[0].movements);
+  // const [balance, setBalance] = React.useState(ctx.users[0].balance);
+  // const [movements, setMovements] = React.useState(ctx.users[0].movements);
 
   return (
+    <>
+    <UserName name={ctx.user} />
     <Card
       txtcolor="white"
       bgcolor="success"
@@ -19,6 +39,7 @@ function Deposit() {
         )
       }
     />
+    </>
   );
 
   function DepositForm(props) {
@@ -28,20 +49,22 @@ function Deposit() {
     function handleDeposit() {
       if (!validate(Number(deposit), balance)) return;
 
-      setBalance(balance + Number(deposit));
-      ctx.users[0].balance = balance + Number(deposit);
-      ctx.users[0].movements.push({
-        date: getDate(),
-        type: "deposit",
-        amount: deposit,
-      });
-      setDeposit("");
+      // setBalance(balance + Number(deposit));
+      // ctx.users[0].balance = balance + Number(deposit);
+      // ctx.users[0].movements.push({
+      //   date: getDate(),
+      //   type: "deposit",
+      //   amount: deposit,
+      // });
+      // setDeposit("");
       setShow(false);
     }
 
     return (
       <>
-        <span className="balance-information">Account Balance ${balance} </span>
+        <span className="balance-information">Account Balance
+         {/* ${balance}  */}
+         </span>
         <br />
         <br />
         Deposit Amount

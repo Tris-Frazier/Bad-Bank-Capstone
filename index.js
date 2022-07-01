@@ -32,9 +32,8 @@ app.get('/account/create/:name/:email/:password', function(req, res) {
 
 // login user
 app.get('/account/login/:email/:password', function (req, res) {
-    dal.login(req.params.email, req.params.password).then(user => {
-        dal.find(req.params.email).
-        then((user) => {
+    dal.findOne(req.params.email).then(user => {
+            console.log(JSON.stringify(user));
             // if user exists, check password
             if(user.length > 0){
                 if (user[0].password === req.params.password){
@@ -48,12 +47,8 @@ app.get('/account/login/:email/:password', function (req, res) {
                 res.send('Login failed: user not found');
             }
     });
-    
-        
-        
         console.log(user);
         res.send(user);
-    })
 });
 
 // find user account
