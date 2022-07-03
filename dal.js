@@ -1,5 +1,5 @@
 const MongoClient = require('mongodb').MongoClient;
-const url = 'mongodb://localhost:27017';
+const url = 'mongodb+srv://tristan:Crazycoder%2335@cluster0.yqltn.mongodb.net/?retryWrites=true&w=majority';
 let db = null;
 
 MongoClient.connect(url, {useUnifiedTopology: true}, function(err, client){
@@ -8,9 +8,9 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function(err, client){
     // database Name
     const dbName = 'badbank';
     db = client.db(dbName);
-    // console.log('///////////////////////////////////////////////////////////////////////')
-    // console.log(db);
-    // console.log('///////////////////////////////////////////////////////////////////////')
+    console.log('///////////////////////////////////////////////////////////////////////')
+    console.log(db);
+    console.log('///////////////////////////////////////////////////////////////////////')
 });
 
 // create user account
