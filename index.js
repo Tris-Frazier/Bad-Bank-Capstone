@@ -4,9 +4,11 @@ var cors = require('cors');
 var dal = require('./dal.js');
 
 
+
 // used to serve static files
 app.use(express.static('public'));
 app.use(cors());
+
 
 // create user account
 app.get('/account/create/:name/:email/:password', function(req, res) {
@@ -36,25 +38,25 @@ app.get('/account/create/:name/:email/:password', function(req, res) {
 app.get('/account/login/:email/:password', function (req, res) {
     dal.findOne(req.params.email).then(user => {
             console.log("inside app.get", JSON.stringify(user));
-            console.log(user.length)
+            console.log(JSON.stringify(user).length)
             // if user exists, check password
-            if(user.length > 4){
-                console.log('user lenght greater than 0')
-                console.log(user.password);
+            if(JSON.stringify(user).length > 4){
+                //console.log('user lenght greater than 0')
+                //console.log(user.password);
                 if (user.password === req.params.password){
-                    console.log('user password matches')
+                    //console.log('user password matches')
                     res.send(JSON.stringify(user));
                 }
                 else{
-                    console.log('password does not match')
-                    res.send({"message":"Login failed: password does not match"});
+                    //console.log('password does not match')
+                    res.send("LOGIN FAILED:  Password does not match");
                 }
             }
             else{
-                console.log('user not found')
-                res.send({"message":"Login failed: user not found"});
+                //console.log('user not found')
+                res.send("LOGIN FAILED:  User not found");
             }
-            console.log('outside of if');
+            //console.log('outside of if');
             // res.send(user);
     });
 });

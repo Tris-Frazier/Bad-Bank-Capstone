@@ -5,6 +5,7 @@ function Login() {
   const [success, setSuccess] = React.useState(false);
   const [loaded, setLoaded] = React.useState(false);
   const [user, setUser] = React.useState("");
+  const [message, setMessage] = React.useState("");
   const ctx = React.useContext(UserContext);
   
   return (
@@ -51,8 +52,8 @@ function Login() {
       );
       firebase.auth().onAuthStateChanged((firebaseUser) => {
         if (firebaseUser) {
-          //console.log(firebaseUser);
-          //console.log(email, password);
+          console.log(firebaseUser);
+          console.log(email, password);
 
           // get account info from MongoDB
           fetch(`/account/login/${email}/${password}`)
@@ -70,18 +71,19 @@ function Login() {
               ctx.email = data.email;
               //console.log('JSON:', data); 
             } catch {
-              setStatus(text);
-              setTimeout(() => setStatus(""), 3000);
+              setMessage(text);
+              setSuccess(false);
+              setShow(false);
             }
           });
         } else {
           //error codes
-          setStatus("unAuthorized User. Please create a new account.")
+          setStatus("unAuthorized User. Please create a new account.");   
           setTimeout(() => setStatus(""), 3000);
         }
       });
       promise.catch((e) => {
-        setSuccess(false);
+        //setSuccess(false);
         setLoaded(false);
         console.log(e.message)});       
     }
@@ -197,7 +199,7 @@ function Login() {
       </>
     ) : (
       <>
-        <h5>No account found</h5>
+        <h5>{message}</h5>
         <button
           type="submit"
           className="btn btn-light"
