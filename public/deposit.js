@@ -1,31 +1,30 @@
 function Deposit() {
-  
-  React.useEffect(() => {
-    const navCreateAccount = document.getElementById('nav-create-account');
-  const navLogin = document.getElementById('nav-login');
-  const navDeposit = document.getElementById('nav-deposit');
-  const navWithdraw = document.getElementById('nav-withdraw');
-  const navBalance = document.getElementById('nav-balance');
-  const navAllData = document.getElementById('nav-allData');
-  const navLogout = document.getElementById('nav-logout');
-  navCreateAccount.style.display = "none";
-  navLogin.style.display = "none";
-  navDeposit.style.display = "block";
-  navWithdraw.style.display = "block";
-  navBalance.style.display = "block";
-  navAllData.style.display = "block";
-  navLogout.style.display = "block";
-  }, []);
-
+  const[balance, setBalance] = React.useState("");
+  const[loaded, setLoaded] = React.useState(false);
   const [show, setShow] = React.useState(true);
   const [status, setStatus] = React.useState("");
-  const ctx = React.useContext(UserContext);
-  // const [balance, setBalance] = React.useState(ctx.users[0].balance);
   // const [movements, setMovements] = React.useState(ctx.users[0].movements);
+  const ctx = React.useContext(UserContext);
 
+  React.useEffect(() => {
+    // get logged in user from MongoDB
+    fetch(`/account/findOne/${ctx.email}`)
+    .then(response => response.text())
+    .then(text => {
+      try {
+        const data = JSON.parse(text)
+        setBalance(data.balance)
+        console.log('JSON:', data)
+      } catch (err) {
+        console.log('err:', text)
+      }
+    })
+    setLoaded(true);
+  },[loaded])
+  
   return (
     <>
-    <UserName name={ctx.user} />
+    <div className="hi-msg">Hi, {ctx.user}</div>
     <Card
       txtcolor="white"
       bgcolor="success"
@@ -33,12 +32,11 @@ function Deposit() {
       status={status}
       body={
         show ? (
-          <DepositForm setShow={setShow} />
+          <DepositForm setShow={setShow} setStatus={setStatus} />
         ) : (
-          <DepositMessage setShow={setShow} />
+          <DepositMessage setShow={setShow} setStatus={setStatus}/>
         )
-      }
-    />
+      }/>
     </>
   );
 
@@ -47,23 +45,31 @@ function Deposit() {
     const [disabled, setDisabled] = React.useState(true);
 
     function handleDeposit() {
-      if (!validate(Number(deposit), balance)) return;
+      // validate amount entered into input field
+      if (!validate(Number(deposit))) return;
 
-      // setBalance(balance + Number(deposit));
-      // ctx.users[0].balance = balance + Number(deposit);
-      // ctx.users[0].movements.push({
-      //   date: getDate(),
-      //   type: "deposit",
-      //   amount: deposit,
-      // });
-      // setDeposit("");
+      // update balance in MongoDB
+      fetch(`/account/update/${ctx.email}/${deposit}`)
+      .then(response => response.text())
+      .then(text => {
+        try {
+          const data = JSON.parse(text);
+          props.setStatus(JSON.stringify(data.amount));
+          props.setShow(false);
+          console.log('JSON:', data);
+        } catch(err) {
+          props.setStatus('Deposit failed')
+          console.log('err:', text);
+        }
+      });
+      setBalance(balance + Number(deposit));
       setShow(false);
     }
 
     return (
       <>
         <span className="balance-information">Account Balance
-         {/* ${balance}  */}
+         ${balance} 
          </span>
         <br />
         <br />
@@ -85,9 +91,7 @@ function Deposit() {
           className="btn btn-light"
           onClick={handleDeposit}
           disabled={disabled}
-        >
-          Deposit
-        </button>
+        >Deposit</button>
       </>
     );
   }
@@ -102,25 +106,13 @@ function Deposit() {
         <button
           type="submit"
           className="btn btn-light"
-          onClick={() => props.setShow(true)}
-        >
-          Deposit Again
-        </button>
+          onClick={() => {props.setShow(true); props.setStatus('');}}
+        >Deposit Again</button>
       </>
     );
   }
 
-  function getDate() {
-    let today = new Date();
-    const dd = String(today.getDate()).padStart(2, "0");
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const yyyy = today.getFullYear();
-
-    today = mm + "/" + dd + "/" + yyyy;
-    return today;
-  }
-
-  function validate(deposit, balance) {
+  function validate(deposit) {
     if (isNaN(deposit)) {
       setStatus("Error: did not enter a valid number");
       setTimeout(() => setStatus(""), 3000);

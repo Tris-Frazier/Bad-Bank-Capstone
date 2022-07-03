@@ -1,10 +1,8 @@
 function CreateAccount() {
-  
   const [show, setShow] = React.useState(true);
   const [status, setStatus] = React.useState("");
   const ctx = React.useContext(UserContext);
   
-
   return (
     <div className='CreateAccountPage'>
     <div id='user-info'><h1 className='user-info'></h1></div>
@@ -32,30 +30,30 @@ function CreateAccount() {
     
 
     function handleCreate() {
-    console.log('handle create fired');
+      //console.log('handle create fired');
       
       // validate field requirements are met
       if (!validate(name, "name")) return;
       if (!validate(email, "email")) return;
       if (!validate(password, "password")) return;
       
-      
+      // OAuth with Google Firebase
       const auth = firebase.auth();
       const promise = auth.createUserWithEmailAndPassword(
       email,
       password
-    );
-    promise.then(()=> {
-      //create user in MongoDB
-      const url = `/account/create/${name}/${email}/${password}`;
-      (async () => {
-        var res  = await fetch(url);
-        var data = await res.json();    
-        console.log(data);        
-      })();
-    })
-    promise.catch((e) => console.log(e.message));
-      props.setShow(false);
+      );
+      promise.then(()=> {
+        //create user in MongoDB
+        const url = `/account/create/${name}/${email}/${password}`;
+        (async () => {
+          var res  = await fetch(url);
+          var data = await res.json();    
+          console.log(data);        
+        })();
+      })
+      promise.catch((e) => console.log(e.message));
+        props.setShow(false);
     }
 
     return (
@@ -107,14 +105,12 @@ function CreateAccount() {
           className="btn btn-light"
           onClick={handleCreate}
           disabled={disabled}
-        >
-          Create Account
-        </button>
+        >Create Account</button>
       </>
     );
   }
 
-  function CreateMessage(props) {
+  function CreateMessage() {
     return (
       <>
         <h5 id="status">Success</h5>
@@ -123,9 +119,7 @@ function CreateAccount() {
             type="submit"
             className="btn btn-light"
             id="status-btn"
-          >
-            Login to Account
-          </button>
+          >Login to Account</button>
         </a>
       </>
     );

@@ -1,30 +1,31 @@
 function Withdraw() {
-  React.useEffect(() => {
-    const navCreateAccount = document.getElementById('nav-create-account');
-  const navLogin = document.getElementById('nav-login');
-  const navDeposit = document.getElementById('nav-deposit');
-  const navWithdraw = document.getElementById('nav-withdraw');
-  const navBalance = document.getElementById('nav-balance');
-  const navAllData = document.getElementById('nav-allData');
-  const navLogout = document.getElementById('nav-logout');
-  navCreateAccount.style.display = "none";
-  navLogin.style.display = "none";
-  navDeposit.style.display = "block";
-  navWithdraw.style.display = "block";
-  navBalance.style.display = "block";
-  navAllData.style.display = "block";
-  navLogout.style.display = "block";
-  }, []);
-
+  const[balance, setBalance] = React.useState("");
   const [show, setShow] = React.useState(true);
   const [status, setStatus] = React.useState("");
   const ctx = React.useContext(UserContext);
-  const [balance, setBalance] = React.useState("");
-  const [movements, setMovements] = React.useState([]);
+  //const [movements, setMovements] = React.useState([]);
+  const[loaded, setLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    // get logged in user info from MongoDB
+    fetch(`/account/findOne/${ctx.email}`)
+    .then(response => response.text())
+    .then(text => {
+      try {
+        const data = JSON.parse(text)
+        setBalance(data.balance)
+        console.log('JSON:', data)
+      } catch (err) {
+        console.log('err:', text)
+      }
+    })
+    setLoaded(true);
+  },[loaded])
+
 
   return (
     <>
-    <UserName name={ctx.user} />
+    <div className="hi-msg">Hi, {ctx.user}</div> : <div></div>
     <Card
       txtcolor="white"
       bgcolor="primary"
@@ -32,31 +33,40 @@ function Withdraw() {
       status={status}
       body={
         show ? (
-          <WithdrawForm setShow={setShow} />
+          <WithdrawForm setShow={setShow} setStatus={setStatus}  />
         ) : (
-          <WithdrawMessage setShow={setShow} />
+          <WithdrawMessage setShow={setShow} setStatus={setStatus}/>
         )
       }
     />
     </>
   );
 
-  function WithdrawForm(props) {
+  function WithdrawForm() {
     const [withdraw, setWithdraw] = React.useState("");
     const [disabled, setDisabled] = React.useState(true);
 
     function handleWithdraw() {
+      //validate input from user
       if (!validate(Number(withdraw), balance)) return;
+      //console.log(typeof(withdraw))
 
-      // setBalance(balance - withdraw);
-      // ctx.users[0].balance = balance - Number(withdraw);
-      // ctx.users[0].movements.push({
-      //   date: getDate(),
-      //   type: "withdraw",
-      //   amount: withdraw,
-      // });
-      // setWithdraw("");
-      // setShow(false);
+      // update user balance in MongoDB 
+      fetch(`/account/update/${ctx.email}/-${Number(withdraw)}`)
+      .then(response => response.text())
+      .then(text => {
+        try {
+          const data = JSON.parse(text);
+          //props.setStatus(JSON.stringify(data.amount));
+          setShow(false);
+          setAmount(data.amount);
+          console.log('JSON:', data);
+        } catch(err) {
+          //setStatus('Withdraw failed')
+          console.log('err:', text);
+        }
+      });
+      setBalance(balance - withdraw);
     }
 
     return (
@@ -82,9 +92,7 @@ function Withdraw() {
           className="btn btn-light"
           onClick={handleWithdraw}
           disabled={disabled}
-        >
-          Withdraw
-        </button>
+        >Withdraw</button>
       </>
     );
   }
@@ -100,21 +108,9 @@ function Withdraw() {
           type="submit"
           className="btn btn-light"
           onClick={() => props.setShow(true)}
-        >
-          Withdraw Again
-        </button>
+        >Withdraw Again</button>
       </>
     );
-  }
-
-  function getDate() {
-    let today = new Date();
-    const dd = String(today.getDate()).padStart(2, "0");
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const yyyy = today.getFullYear();
-
-    today = mm + "/" + dd + "/" + yyyy;
-    return today;
   }
 
   function validate(withdraw, balance) {

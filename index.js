@@ -3,6 +3,7 @@ var app = express();
 var cors = require('cors');
 var dal = require('./dal.js');
 
+
 // used to serve static files
 app.use(express.static('public'));
 app.use(cors());
@@ -30,25 +31,32 @@ app.get('/account/create/:name/:email/:password', function(req, res) {
         });     
 });
 
+
 // login user
 app.get('/account/login/:email/:password', function (req, res) {
     dal.findOne(req.params.email).then(user => {
-            console.log(JSON.stringify(user));
+            console.log("inside app.get", JSON.stringify(user));
+            console.log(user.length)
             // if user exists, check password
-            if(user.length > 0){
-                if (user[0].password === req.params.password){
-                    res.send(user[0]);
+            if(user.length > 4){
+                console.log('user lenght greater than 0')
+                console.log(user.password);
+                if (user.password === req.params.password){
+                    console.log('user password matches')
+                    res.send(JSON.stringify(user));
                 }
                 else{
-                    res.send('Login failed: password does not match');
+                    console.log('password does not match')
+                    res.send({"message":"Login failed: password does not match"});
                 }
             }
             else{
-                res.send('Login failed: user not found');
+                console.log('user not found')
+                res.send({"message":"Login failed: user not found"});
             }
+            console.log('outside of if');
+            // res.send(user);
     });
-        console.log(user);
-        res.send(user);
 });
 
 // find user account
@@ -79,6 +87,7 @@ app.get('/account/all', function (req, res) {
 // update - deposit/withdraw amount
 app.get('/account/update/:email/:amount', function (req, res) {
     let amount = Number(req.params.amount);
+    console.log("inside index...amount: ", amount)
 
     dal.update(req.params.email, amount)
         .then((response) => {
@@ -89,6 +98,7 @@ app.get('/account/update/:email/:amount', function (req, res) {
 
 // get balance
 app.get('/account/balance/:name/:email/:amount', function(req, res) {
+    
     dal.deposit(req.params.name, req.params.email, req.params.amount)
         .then((user) => {
         console.log(user);
@@ -103,6 +113,14 @@ app.get('/account/balance/update/:email', function(req, res) {
         res.send(user);
     })
 });
+
+// delete user
+app.get('/account/delete/:email', function(req, res) {
+    dal.deleteOne(req.params.email).then(user => {
+        console.log(user);
+        res.send(user);
+    })
+})
 
 var port = 3000;
 app.listen(port);

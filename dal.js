@@ -8,9 +8,9 @@ MongoClient.connect(url, {useUnifiedTopology: true}, function(err, client){
     // database Name
     const dbName = 'badbank';
     db = client.db(dbName);
-    console.log('///////////////////////////////////////////////////////////////////////')
-    console.log(db);
-    console.log('///////////////////////////////////////////////////////////////////////')
+    // console.log('///////////////////////////////////////////////////////////////////////')
+    // console.log(db);
+    // console.log('///////////////////////////////////////////////////////////////////////')
 });
 
 // create user account
@@ -21,12 +21,13 @@ function create(name, email, password){
         collection.insertOne(doc, {w:1}, function(err, result) {
             err? reject(err) : resolve(doc);
         });
-    });   
+    }); 
+     
 };
 
 // find single user
 function find(email){
-    console.log('find was called')
+    //console.log('find was called')
     return new Promise((resolve, reject) => {
         const customers = db.collection('users')
         .find({email: email})
@@ -58,11 +59,13 @@ function all(){
 
 // update - deposit/withdraw amount
 function update(email, amount) {
+    console.log('inside dal...amount:', amount)
+    const amountNum = Number(amount);
     return new Promise((resolve, reject) => {
         const customers = db.collection('users')
             .findOneAndUpdate(
                 { email: email },
-                { $inc: {balance: amount} },
+                { $inc: {balance: amountNum} },
                 { returnOriginal: false },
                 function (err, documents) {
                     err ? reject(err) : resolve(documents);
@@ -71,4 +74,17 @@ function update(email, amount) {
     });
 }
 
-module.exports = {create, find, findOne, update, all};
+// delete user
+function deleteOne(email) {
+    return new Promise((resolve, reject) => {
+        const customers = db.collection('users')
+        .deleteOne(
+            {"email": email},
+            function(err, docs) {
+                err? reject(err):resolve(docs);
+            }
+        )
+    })
+}
+
+module.exports = {create, find, findOne, update, all, deleteOne};

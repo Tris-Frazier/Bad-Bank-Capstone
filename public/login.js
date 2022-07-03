@@ -1,82 +1,16 @@
 
-function Login() {
-  
+function Login() { 
   const [show, setShow] = React.useState(true);
   const [status, setStatus] = React.useState("");
   const [success, setSuccess] = React.useState(false);
-  const [data, setData] = React.useState([]);
+  const [loaded, setLoaded] = React.useState(false);
+  const [user, setUser] = React.useState("");
   const ctx = React.useContext(UserContext);
   
-
-  const[loaded, setLoaded] = React.useState(false);
-  React.useEffect(() => {
-    // fetch all accounts from API
-    fetch('/account/all')
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-        setData(data);
-      })
-
-    setLoaded(true);
-  }, [loaded]);
-  console.log(data);
-
-  function checkForMatch(email, password){
-    const userInfo = document.getElementById('user-info')
-    console.log(email, password)
-    //initalize match
-    const tempArray = data;
-
-    // find match
-    let matchFound = tempArray.filter(item => {
-      if(item.email == email && item.password == password) {
-        return true;
-      }
-    })
-    //console.log('match found', matchFound)
-    let wrongPassword = tempArray.filter(item => {
-      if(item.email == email && item.password != password) {
-        return true;
-      }
-    })
-  
-    if(matchFound.length > 0) {
-      ctx.user = matchFound[0].name;
-      console.log(matchFound[0].name)
-      //setDisplayName(matchFound[0].name)
-      //userInfo.style.visibility = "visible";
-      setShow(false);
-      setSuccess(true);
-      setTimeout(() => {
-        const navCreateAccount = document.getElementById('nav-create-account');
-        const navLogin = document.getElementById('nav-login');
-        const navDeposit = document.getElementById('nav-deposit');
-        const navWithdraw = document.getElementById('nav-withdraw');
-        const navBalance = document.getElementById('nav-balance');
-        const navAllData = document.getElementById('nav-allData');
-        const navLogout = document.getElementById('nav-logout');
-        navCreateAccount.style.display = "none";
-        navLogin.style.display = "none";
-        navDeposit.style.display = "block";
-        navWithdraw.style.display = "block";
-        navBalance.style.display = "block";
-        navAllData.style.display = "block";
-        navLogout.style.display = "block";
-      }, 0)
-    }
-    console.log(ctx.user)
-    if(wrongPassword.length > 0) {
-      //setStatus('Password does not match')
-    }
-    
-  }
-
-
   return (
     <>
-    <UserName name={ctx.user} />
-   
+    {loaded? <div className="hi-msg">Hi, {user}</div> : <div></div>}
+    
     <div className="login-card">
     <Card
       txtcolor="black"
@@ -85,9 +19,9 @@ function Login() {
       status={status}
       body={
         show ? (
-          <LoginForm setShow={setShow} />
+          <LoginForm setUser={setUser} setShow={setShow} setStatus={setStatus} />
         ) : (
-          <LoginMessage setShow={setShow} />
+          <LoginMessage setShow={setShow} setStatus={setStatus} />
         )
       }
     />
@@ -97,21 +31,104 @@ function Login() {
 
   
 
-  function LoginForm(props) {
+  function LoginForm() {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [disabled, setDisabled] = React.useState(true);
-    const allData = [];
 
     function handleLogin() {
       //console.log(email, password);
 
+      // validate fields
       if (!validate(email, "email")) return;
       if (!validate(password, "password")) return;
-    
-      checkForMatch(email, password);
-        
+      
+      // Firebase auth
+      const auth = firebase.auth();
+      const promise = auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+      firebase.auth().onAuthStateChanged((firebaseUser) => {
+        if (firebaseUser) {
+          //console.log(firebaseUser);
+          //console.log(email, password);
+
+          // get account info from MongoDB
+          fetch(`/account/login/${email}/${password}`)
+          .then(response => response.text())
+          .then(text => {
+            //console.log(text)
+            try{
+              const data = JSON.parse(text);
+              //console.log(data)
+              setShow(false);
+              setUser(data.name);
+              setLoaded(true);
+              setSuccess(true);
+              ctx.user = data.name;
+              ctx.email = data.email;
+              //console.log('JSON:', data); 
+            } catch {
+              setStatus(text);
+              setTimeout(() => setStatus(""), 3000);
+            }
+          });
+        } else {
+          //error codes
+          setStatus("unAuthorized User. Please create a new account.")
+          setTimeout(() => setStatus(""), 3000);
+        }
+      });
+      promise.catch((e) => {
+        setSuccess(false);
+        setLoaded(false);
+        console.log(e.message)});       
     }
+
+    // function handleGoogleLogin() {
+    //   console.log('google login clicked');
+    //   var provider = new firebase.auth.GoogleAuthProvider();
+    //   firebase
+    //     .auth()
+    //     .signInWithPopup(provider)
+    //     .then(function (result) {
+    //       console.log(result);
+    //       const gmail = encodeURI(result.additionalUserInfo.profile.email);
+    //       console.log(gmail);
+    //       fetch(`/account/login/${gmail}/${password}`)
+    //       .then(response => response.text())
+    //       .then((text) => {
+    //         console.log(text)
+    //         try{
+    //           const data = JSON.parse(text);
+    //           console.log(data)
+    //           setShow(false);
+    //           setUser(data.name);
+    //           ctx = {user:data.name, email:data.email};
+    //           setLoaded(true);
+    //           setSuccess(true);
+    //           console.log('JSON:', data); 
+    //         } catch {
+    //           setStatus(text);
+    //           setTimeout(() => setStatus(""), 3000);
+            
+    //               // const url = `/account/create/${gmail}/${gmail}/${gmail}`;
+    //               // await fetch(url);
+    //               // const res = await fetch(`/account/login/${gmail}/${gmail}`)
+    //               // const text = await res.text();
+    //               // const data = JSON.parse(text);
+    //               // setStatus('');
+    //               // setShow(false);
+    //               // setUser(data);
+    //         }
+    //       })
+    //     })
+    //     .catch(function (error) {
+    //       console.log(error.code);
+    //       console.log(error.message);
+    //     }); 
+    // }
 
     return (
       <>
@@ -143,14 +160,25 @@ function Login() {
           }}
         />
         <br />
+        <div className="login-btn">
+          <button
+            type="submit"
+            className="btn btn-light"
+            onClick={handleLogin}
+            disabled={disabled}
+            
+          >Login</button>
+        </div>
+        {/* <div>
         <button
           type="submit"
           className="btn btn-light"
-          onClick={handleLogin}
+          onClick={handleGoogleLogin}
           disabled={disabled}
         >
-          Login
+          Login with Google
         </button>
+        </div> */}
       </>
     );
   }
@@ -159,13 +187,13 @@ function Login() {
     return success ? (
       <>
         <h5>Login Success</h5>
-        {/* <button
+        <a href="#/balance/">
+          <button
           type="submit"
           className="btn btn-light"
           onClick={() => props.setShow(true)}
-        >
-          Logout
-        </button> */}
+          >Go to Account</button>
+        </a>
       </>
     ) : (
       <>
@@ -174,9 +202,7 @@ function Login() {
           type="submit"
           className="btn btn-light"
           onClick={() => props.setShow(true)}
-        >
-          Retry
-        </button>
+        >Retry</button>
       </>
     );
   }
