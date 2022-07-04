@@ -19,14 +19,6 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-function UserName(props){
-  console.log(props)
-  return (
-    <div id='user-info'>
-      <h1 className='user-info'>Hi, {props.name}</h1>
-    </div>
-  )
-}
 
 function Card(props) {
   function classes() {

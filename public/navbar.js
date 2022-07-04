@@ -5,7 +5,7 @@ function NavBar() {
     console.log('logout clicked')
     //const userInfo = document.getElementById('user-info')
     //userInfo.style.visibility = "hidden";
-    ctx.name = "";
+    ctx.user = "";
     ctx.email = "";
     firebase.auth().signOut();
   }
