@@ -74,6 +74,25 @@ function update(email, amount) {
     });
 }
 
+function transfer(email, amount, message) {
+    console.log('inside dal...amount:', amount)
+    const amountNum = Number(amount);
+    return new Promise((resolve, reject) => {
+        const customers = db.collection('users')
+            .findOneAndUpdate(
+                { email: email },
+                { $inc: {balance: amountNum} },
+                { $set: {message: message} },
+                {upsert:false,
+                    multi:false},
+                { returnOriginal: false },
+                function (err, documents) {
+                    err ? reject(err) : resolve(documents);
+                }
+            );
+    });
+}
+
 // delete user
 function deleteOne(email) {
     return new Promise((resolve, reject) => {
@@ -87,4 +106,18 @@ function deleteOne(email) {
     })
 }
 
-module.exports = {create, find, findOne, update, all, deleteOne};
+// add field to collection docs
+function updateMany() {
+    return new Promise((resolve, reject) => {
+        const customers = db.collection('users')
+        .updateMany(
+            {},
+            {$set: {message: "none"}},
+            function(err, docs) {
+                err? reject(err):resolve(docs);
+            }
+        )
+    })
+}
+
+module.exports = {create, find, findOne, update, all, deleteOne, transfer, updateMany};

@@ -10,6 +10,7 @@ function Balance() {
     const navLogin = document.getElementById('nav-login');
     const navDeposit = document.getElementById('nav-deposit');
     const navWithdraw = document.getElementById('nav-withdraw');
+    const navTransfer = document.getElementById('nav-transfer');
     const navBalance = document.getElementById('nav-balance');
     const navAllData = document.getElementById('nav-allData');
     const navLogout = document.getElementById('nav-logout');
@@ -18,6 +19,7 @@ function Balance() {
     navLogin.style.display = "none";
     navDeposit.style.display = "block";
     navWithdraw.style.display = "block";
+    navTransfer.style.display = "block";
     navBalance.style.display = "block";
     navAllData.style.display = "block";
     navLogout.style.display = "block";
@@ -31,6 +33,9 @@ function Balance() {
       try {
         const data = JSON.parse(text)
         setBalance(data.balance)
+        if(data?.message){
+        console.log(data.message)
+        }
         console.log('JSON:', JSON.stringify(data))
       } catch (err) {
         console.log('err:', text)

@@ -98,6 +98,18 @@ app.get('/account/update/:email/:amount', function (req, res) {
     });    
 }); 
 
+// update - deposit/withdraw amount
+app.get('/account/update/:email/:amount/:message', function (req, res) {
+    let amount = Number(req.params.amount);
+    console.log("inside index...amount: ", amount)
+
+    dal.transfer(req.params.email, amount, req.params.message)
+        .then((response) => {
+            console.log(response);
+            res.send(response);
+    });    
+}); 
+
 // get balance
 app.get('/account/balance/:name/:email/:amount', function(req, res) {
     

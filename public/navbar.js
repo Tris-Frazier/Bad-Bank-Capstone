@@ -5,7 +5,7 @@ function NavBar() {
     console.log('logout clicked')
     //const userInfo = document.getElementById('user-info')
     //userInfo.style.visibility = "hidden";
-    ctx.user = "";
+    ctx.user = "please login";
     ctx.email = "";
     firebase.auth().signOut();
   }
@@ -51,6 +51,13 @@ function NavBar() {
               <a className="nav-link" href="#/withdraw/">
                 <span title="Withdraw money from existing account">
                   Withdraw
+                </span>
+              </a>
+            </li>
+            <li className="nav-item"  id='nav-transfer'>
+              <a className="nav-link" href="#/transfer/">
+                <span title="Transfer funds to others">
+                  Transfer
                 </span>
               </a>
             </li>
